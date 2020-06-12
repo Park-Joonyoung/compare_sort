@@ -1,0 +1,7 @@
+﻿  compare_sort.c
+e:\google 드라이브\programming_languages\compare_sort\compare_sort\compare_sort.c(55): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1274): note: 'scanf' 선언을 참조하십시오.
+e:\google 드라이브\programming_languages\compare_sort\compare_sort\compare_sort.c(75): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(1274): note: 'scanf' 선언을 참조하십시오.
+e:\google 드라이브\programming_languages\compare_sort\compare_sort\compare_sort.c(108): warning C4700: 초기화되지 않은 'bubble' 지역 변수를 사용했습니다.
+  compare_sort.vcxproj -> E:\Google 드라이브\Programming_Languages\compare_sort\Debug\compare_sort.exe
