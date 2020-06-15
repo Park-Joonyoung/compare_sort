@@ -1,7 +1,7 @@
 /* MEMO*/
 /*
  *  다른 sort 알고리즘 추가하기
- *
+ *  print 로직 변경 (모두 하고 한번에 출력 -> 개별 출력)
  *
  *
  */
@@ -200,22 +200,52 @@ void bubble(int *arr, int size)
 	}
 }
 
-void selection(int *arr, int size) {
+void selection(int *arr, int size)
+{
+	int i, j, min_index, temp;
+
+	for (i = 0; i < size - 1; ++i) {
+		min_index = i;
+
+		for (j = i + 1; j < size; ++j) {
+			if (arr[j] < arr[min_index]) {
+				min_index = j;
+			}
+		}
+
+		temp = arr[min_index];
+		arr[min_index] = arr[i];
+		arr[i] = temp;
+	}
+}
+
+void insertion(int *arr, int size)
+{
+	int i, j, temp;
+
+	for (i = 1; i < size; ++i) {
+		temp = arr[i];
+		j = i - 1;
+
+		while ((temp < arr[j]) && (j >= 0)) {
+			arr[j + 1] = arr[j];
+			j = j - 1;
+		}
+		arr[j + 1] = temp;
+	}
+}
+
+void quick(int *arr, int size)
+{
 
 }
 
-void insertion(int *arr, int size) {
+void merge(int *arr, int size)
+{
 
 }
 
-void quick(int *arr, int size) {
-
-}
-
-void merge(int *arr, int size) {
-
-}
-
-void heap(int *arr, int size) {
+void heap(int *arr, int size)
+{
 
 }
