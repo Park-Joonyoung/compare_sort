@@ -1,11 +1,3 @@
-/* MEMO*/
-/*
- *  다른 sort 알고리즘 추가하기
- *  print 로직 변경 (모두 하고 한번에 출력 -> 개별 출력)
- *
- *
- */
-
 /* Compares given sorting algorithms */
 
 #include <stdio.h>
@@ -13,15 +5,19 @@
 #include <time.h>
 
 #define MAX 50000
-#define BEST_TIME_FORMAT "최선(ms): %g \n"
-#define AVG_TIME_FORMAT "평균(ms): %g \n"
-#define WORST_TIME_FORMAT "최악(ms): %g \n"
+#define BEST_TIME_FORMAT "최선(ms): %f \n"
+#define AVG_TIME_FORMAT "평균(ms): %f \n"
+#define WORST_TIME_FORMAT "최악(ms): %f \n"
 
+/* structs */
 typedef struct {
 	double best_time;
 	double avg_time;
 	double worst_time;
 } Result;
+
+/* external variables */
+enum { BUBBLE, SELECTION, INSERTION, QUICK, MERGE, HEAP };
 
 /* function prototypes */
 void getvars(int *size, int *repeat);
@@ -33,13 +29,19 @@ void do_sort(Result *sort_ptr, int sort_name, int *arr, int size, int repeat);
 void bubble(int *arr, int size);
 void selection(int *arr, int size);
 void insertion(int *arr, int size);
-void quick(int *arr, int size);
+void quick(int *arr, int left, int right);
+/********************* merge sort *********************/
 void merge(int *arr, int size);
+void do_split(int *temp, int start, int end, int *arr);
+void do_merge(int *arr, int start, int middle, int end, int *temp);
+void copy_array(int *arr, int start, int end, int *temp);
+/********************** heap sort *********************/
 void heap(int *arr, int size);
+void heapify(int *arr, int size, int i);
+void swap(int *a, int *b);
 
 int main(void)
 {
-	enum { BUBBLE, SELECTION, INSERTION, QUICK, MERGE, HEAP };
 	int i = 0;
 	int size, repeat; getvars(&size, &repeat);
 	int arr[MAX];
@@ -50,8 +52,6 @@ int main(void)
 	}
 
 	srand((int)time(NULL));
-
-	random(arr, size);
 
 	for (i = BUBBLE; i <= HEAP; ++i) {
 		do_sort(&sort[i], i, arr, size, repeat);
@@ -71,7 +71,7 @@ void init(Result *sort_ptr)
 
 void getvars(int *size, int *repeat)
 {
-	printf("배열에 저장할 숫자의 최대 개수를 입력하세요(%d 이하). \n", MAX);
+	printf("배열에 저장할 숫자의 개수를 입력하세요(%d 이하). \n", MAX);
 	printf("0을 입력하면 종료합니다. \n");
 	for (;;) {
 		scanf("%d", size);
@@ -120,7 +120,6 @@ void random(int *arr, int size)
 
 void print_all(Result *sort)
 {
-	enum { BUBBLE, SELECTION, INSERTION, QUICK, MERGE, HEAP };
 	char *sort_name[6] = {"Bubble", "Selection", "Insertion", "Quick", "Merge", "Heap"};
 	int i;
 
@@ -135,13 +134,14 @@ void print_all(Result *sort)
 
 void do_sort(Result *sort_ptr, int sort_name, int *arr, int size, int repeat)
 {
-	enum { BUBBLE, SELECTION, INSERTION, QUICK, MERGE, HEAP };
 	double t_i, t_f;
 	double time[MAX];							// the array stores time taken during sorting elements
 	int i;
 	double t_sum = 0.0;
 
 	for (i = 0; i < repeat; ++i) {
+		random(arr, size);
+
 		t_i = clock();
 		
 		switch (sort_name) {
@@ -155,7 +155,7 @@ void do_sort(Result *sort_ptr, int sort_name, int *arr, int size, int repeat)
 			insertion(arr, size);
 			break;
 		case QUICK:
-			quick(arr, size);
+			quick(arr, 0, size - 1);
 			break;
 		case MERGE:
 			merge(arr, size);
@@ -223,29 +223,143 @@ void insertion(int *arr, int size)
 {
 	int i, j, temp;
 
-	for (i = 1; i < size; ++i) {
-		temp = arr[i];
-		j = i - 1;
+	for(i = 1; i <= size - 1; ++i) {
+		j = i;
 
-		while ((temp < arr[j]) && (j >= 0)) {
-			arr[j + 1] = arr[j];
-			j = j - 1;
+		while (j > 0 && arr[j] < arr[j - 1]) {
+			temp = arr[j];
+			arr[j] = arr[j - 1];
+			arr[j - 1] = temp;
+
+			--j;
 		}
-		arr[j + 1] = temp;
 	}
 }
 
-void quick(int *arr, int size)
+void quick(int *arr, int left, int right)
 {
+	int i = left, j = right;
+	int pivot = arr[(left + right) / 2];
+	int temp;
 
+	while (i <= j) {
+		while (arr[i] < pivot) {
+			++i;
+		}
+		while (arr[j] > pivot) {
+			--j;
+		}
+
+		if (i <= j) {
+			if (i != j) {
+				temp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = temp;
+			}
+
+			++i; --j;
+		}
+	}
+
+	if (left < j) {
+		quick(arr, left, j);
+	}
+		
+	if (i < right) {
+		quick(arr, i, right);
+	}
 }
+
+/********************* merge sort *********************/
 
 void merge(int *arr, int size)
 {
+	int temp[MAX];
 
+	copy_array(arr, 0, size, temp);
+	do_split(temp, 0, size, arr);
 }
+
+void do_split(int *temp, int start, int end, int *arr)
+{
+	int middle;
+
+	if (end - start < 2) {
+		return;
+	}
+	middle = (end + start) / 2;
+	do_split(arr, start, middle, temp);
+	do_split(arr, middle, end, temp);
+
+	do_merge(temp, start, middle, end, arr);
+}
+
+void do_merge(int *arr, int start, int middle, int end, int *temp)
+{
+	int i, j, k;
+
+	i = start, j = middle;
+	for (k = start; k < end; ++k) {
+		if (i < middle && (j >= end || arr[i] <= arr[j])) {
+			temp[k] = arr[i];
+			i = i + 1;
+		}
+		else {
+			temp[k] = arr[j];
+			j = j + 1;
+		}
+	}
+}
+
+void copy_array(int *arr, int start, int end, int *temp)
+{
+	int i;
+
+	for (i = start; i < end; ++i) {
+		temp[i] = arr[i];
+	}
+}
+
+/********************** heap sort *********************/
 
 void heap(int *arr, int size)
 {
+	int i;
 
+	for (i = size / 2 - 1; i >= 0; --i)
+		heapify(arr, size, i);
+
+	for (i = size - 1; i >= 0; --i) {
+		swap(&arr[0], &arr[i]);
+
+		heapify(arr, i, 0);
+	}
+}
+
+void heapify(int *arr, int size, int i)
+{
+	int largest = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+
+	if (left < size && arr[left] > arr[largest]) {
+		largest = left;
+	}
+		
+
+	if (right < size && arr[right] > arr[largest]) {
+		largest = right;
+	}
+
+	if (largest != i) {
+		swap(&arr[i], &arr[largest]);
+		heapify(arr, size, largest);
+	}
+}
+
+void swap(int *a, int *b)
+{
+	int temp = *a;
+	*a = *b;
+	*b = temp;
 }
