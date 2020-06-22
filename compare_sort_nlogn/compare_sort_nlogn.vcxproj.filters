@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="compare_sort.c">
+    <ClCompile Include="compare_sort_nlogn.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
